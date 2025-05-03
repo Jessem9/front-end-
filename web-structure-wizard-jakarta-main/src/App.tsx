@@ -11,10 +11,13 @@ import Services from "./pages/Services";
 import ServiceDetail from "./pages/ServiceDetail";
 import Prestataires from "./pages/Prestataires";
 import PrestataireDetail from "./pages/PrestaireDetail";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import axios from "axios";
 
 const queryClient = new QueryClient();
-
+axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -30,6 +33,8 @@ const App = () => (
           <Route path="/prestataires" element={<Prestataires />} />
           <Route path="/prestataires/:id" element={<PrestataireDetail />} />
           <Route path="*" element={<NotFound />} />
+          <Route path="/connexion" element={<Login />} />
+          <Route path="/inscription" element={<Register />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

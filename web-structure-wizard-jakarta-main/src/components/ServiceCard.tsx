@@ -1,43 +1,63 @@
-import { Prestataire, Service, SousCategorie } from "@/types/models";
+import { Link } from "react-router-dom";
+import { Service, SousCategorie } from "@/types/models";
+import { Badge } from "@/components/ui/badge";
 
 interface ServiceCardProps {
   service: Service;
-  prestataire: Prestataire | undefined;
-  sousCategorie: SousCategorie | undefined;
+  sousCategorie?: SousCategorie;
 }
 
-const ServiceCard = ({ service, prestataire, sousCategorie }: ServiceCardProps) => {
+const ServiceCard = ({ service, sousCategorie }: ServiceCardProps) => {
+  console.log('Service in Card:', service);
+  console.log('Service id:', service.id);
+
+ 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = '/default-service.png';
+    target.className = "w-full h-full object-contain bg-gray-100";
+  };
+
   return (
-    <div className="service-card">
-      <h3>{service.titre || "Service sans titre"}</h3>
-      <p>{service.description || "Aucune description disponible"}</p>
+    <Link 
+      to={`/services/${service.id}`} // Now guaranteed to have an ID
+      className="group block bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 border border-[#09403A]/20 h-full flex flex-col"
+    >
 
-      {/* Check if prestataire is defined and handle its properties safely */}
-      {prestataire && prestataire.profilPro ? (
-        <p>Prestataire: {prestataire.profilPro.nom || "Nom inconnu"}</p>
-      ) : (
-        <p>Prestataire non disponible</p>
-      )}
+      <div className="h-48 overflow-hidden bg-gray-100">
+        <img
+          src={service.image || '/default-service.png'}
+          alt={service.titre || "Service image"}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          onError={handleImageError}
+          loading="lazy"
+        />
+      </div>
 
-      {/* Check if sousCategorie is defined */}
-      {sousCategorie ? (
-        <p>Sous-catégorie: {sousCategorie.nom || "Non spécifié"}</p>
-      ) : (
-        <p>Sous-catégorie non disponible</p>
-      )}
-
-      {/* Check if reserveParId exists */}
-      {service.reserveParId && (
-        <p>Réservé par: {service.reserveParId}</p>
-      )}
-
-      {/* Ensure image URL is valid, otherwise show a fallback */}
-      <img
-        src={service.image || "/path/to/default-image.jpg"}  // Fallback image if none is provided
-        alt={service.titre || "Service image"}
-        className="service-image"
-      />
-    </div>
+      <div className="p-5 flex-grow flex flex-col">
+        <div className="mb-3">
+          {sousCategorie && (
+            <Badge className="bg-[#09403A]/10 text-[#09403A] hover:bg-[#09403A]/20">
+              {sousCategorie.nom}
+            </Badge>
+          )}
+        </div>
+        
+        <h3 className="text-xl font-bold text-[#09403A] mb-3 line-clamp-2">
+          {service.titre || "Service sans titre"}
+        </h3>
+        
+        <p className="text-gray-600 text-sm line-clamp-3 flex-grow">
+          {service.description || "Aucune description disponible"}
+        </p>
+        
+        <div className="mt-4 flex justify-between items-center">
+          <span className="text-xs text-[#09403A] group-hover:underline">
+            Voir détails →
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 };
 

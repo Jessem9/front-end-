@@ -1,7 +1,8 @@
+import { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 import { NavBar } from "@/components/NavBar";
 import { Footer } from "@/components/Footer";
 import ServiceCard from "@/components/ServiceCard";
-import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search } from "lucide-react";
@@ -19,40 +20,36 @@ const Services = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [categories, setCategories] = useState<Categorie[]>([]);
   const [subCategories, setSubCategories] = useState<SousCategorie[]>([]);
-
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>("all");
 
-  // Fetch categories, subcategories, and services
   useEffect(() => {
     const loadData = async () => {
       try {
-        const categoriesData = await fetchCategories();
+        const [categoriesData, subCategoriesData, servicesData] = await Promise.all([
+          fetchCategories(),
+          fetchSousCategories(),
+          fetchServices()
+        ]);
         setCategories(categoriesData);
-        const subCategoriesData = await fetchSousCategories();
         setSubCategories(subCategoriesData);
-        const servicesData = await fetchServices();
         setServices(servicesData);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
-
     loadData();
   }, []);
 
-  // Helper function to get categoryId from sousCategorieId
   const getCategorieIdFromSousCategorieId = (sousCategorieId: number) => {
     return subCategories.find(sc => sc.id === sousCategorieId)?.categorieId;
   };
 
-  // Filter subcategories based on selected category
   const filteredSubCategories = selectedCategory !== "all"
     ? subCategories.filter(sc => sc.categorieId === parseInt(selectedCategory, 10))
     : subCategories;
 
-  // Filter services based on search, category, and subcategory
   const filteredServices = services.filter(service => {
     const matchesSearch =
       service.titre.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -71,12 +68,10 @@ const Services = () => {
     return matchesSearch && matchesCategory && matchesSubCategory;
   });
 
-  // Handle search
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
   };
 
-  // Reset filters
   const resetFilters = () => {
     setSearchTerm("");
     setSelectedCategory("all");
@@ -86,13 +81,12 @@ const Services = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <NavBar />
-      
       <main className="flex-grow">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-          <h1 className="text-3xl font-bold mb-8">Tous les services</h1>
+          <h1 className="text-3xl font-bold text-[#09403A] mb-8">Nos Services</h1>
 
-          {/* Filtres et recherche */}
-          <div className="bg-white p-6 rounded-lg shadow-sm mb-8">
+          {/* Filters */}
+          <div className="bg-white p-6 rounded-lg shadow-sm border border-[#09403A]/20 mb-8">
             <form onSubmit={handleSearch}>
               <div className="flex flex-col md:flex-row gap-4 mb-4">
                 <div className="flex-grow">
@@ -100,14 +94,18 @@ const Services = () => {
                     placeholder="Rechercher un service..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
+                    className="border-[#09403A]/30 focus:border-[#09403A]"
                   />
                 </div>
 
                 <Select
                   value={selectedCategory}
-                  onValueChange={setSelectedCategory}
+                  onValueChange={(value) => {
+                    setSelectedCategory(value);
+                    setSelectedSubCategory("all"); // Reset subcategory when category changes
+                  }}
                 >
-                  <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectTrigger className="w-full md:w-[200px] border-[#09403A]/30 focus:border-[#09403A]">
                     <SelectValue placeholder="Catégorie" />
                   </SelectTrigger>
                   <SelectContent>
@@ -125,7 +123,7 @@ const Services = () => {
                   onValueChange={setSelectedSubCategory}
                   disabled={selectedCategory === "all"}
                 >
-                  <SelectTrigger className="w-full md:w-[200px]">
+                  <SelectTrigger className="w-full md:w-[200px] border-[#09403A]/30 focus:border-[#09403A]">
                     <SelectValue placeholder="Sous-catégorie" />
                   </SelectTrigger>
                   <SelectContent>
@@ -144,10 +142,14 @@ const Services = () => {
                   type="button" 
                   variant="outline" 
                   onClick={resetFilters}
+                  className="border-[#09403A] text-[#09403A] hover:bg-[#09403A]/10"
                 >
                   Réinitialiser
                 </Button>
-                <Button type="submit" className="bg-blue-600 hover:bg-blue-700">
+                <Button 
+                  type="submit" 
+                  className="bg-[#09403A] hover:bg-[#0A554D]"
+                >
                   <Search className="mr-2 h-4 w-4" />
                   Rechercher
                 </Button>
@@ -155,7 +157,7 @@ const Services = () => {
             </form>
           </div>
 
-          {/* Résultats */}
+          {/* Results */}
           <div>
             <p className="text-gray-600 mb-4">
               {filteredServices.length} service(s) trouvé(s)
@@ -163,14 +165,16 @@ const Services = () => {
 
             {filteredServices.length > 0 ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filteredServices.map((service, index) => (
-                  <ServiceCard 
-                    key={service.id ?? index} 
-                    service={service} 
-                    prestataire={undefined}  // If you have the prestataire data, pass it here.
-                    sousCategorie={subCategories.find(subCat => subCat.id === service.sousCategorieId)} 
-                  />
-                ))}
+                {filteredServices.map((service) => {
+                  const subCat = subCategories.find(sc => sc.id === service.sousCategorieId);
+                  return (
+                    <ServiceCard 
+                      key={service.id} 
+                      service={service}
+                      sousCategorie={subCat}
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="text-center py-12">
@@ -180,7 +184,7 @@ const Services = () => {
                 <Button 
                   variant="link" 
                   onClick={resetFilters} 
-                  className="text-blue-600"
+                  className="text-[#09403A]"
                 >
                   Réinitialiser les filtres
                 </Button>
@@ -189,7 +193,6 @@ const Services = () => {
           </div>
         </div>
       </main>
-
       <Footer />
     </div>
   );

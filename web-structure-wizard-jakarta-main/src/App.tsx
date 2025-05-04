@@ -14,6 +14,7 @@ import PrestataireDetail from "./pages/PrestaireDetail";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
+import CreerService from "./pages/creer-service";
 import axios from "axios";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,8 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
           <Route path="/connexion" element={<Login />} />
           <Route path="/inscription" element={<Register />} />
+          <Route path="/creer-service" element={<CreerService />} />
+
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

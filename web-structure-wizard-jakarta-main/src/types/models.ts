@@ -13,7 +13,8 @@ export interface Demandeur {
   email: string;
   motDePasse: string;
   historiqueService: Service[];
-  
+  profil: Profil;
+
   authentifier?: () => boolean;
   gererUtilisateurs?: () => void;
 }

@@ -227,7 +227,7 @@ const Index = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {services.length > 0 ? (
               services.slice(0, 6).map(service => (
-                <ServiceCard key={service.id} service={service} prestataire={undefined} sousCategorie={undefined} />
+                <ServiceCard key={service.id} service={service} sousCategorie={undefined} />
               ))
             ) : (
               <div>Pas de services disponibles.</div>

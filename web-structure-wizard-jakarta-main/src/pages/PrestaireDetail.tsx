@@ -66,7 +66,7 @@ const PrestataireDetail = () => {
             <ChevronRight className="h-4 w-4 mx-2" />
             <Link to="/prestataires" className="hover:text-blue-600">Prestataires</Link>
             <ChevronRight className="h-4 w-4 mx-2" />
-            <span className="text-gray-800">{prestataire.profilPro.prenom} {prestataire.profilPro.nom}</span>
+            <span className="text-gray-800">{prestataire.email} {prestataire.id}</span>
           </div>
 
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -75,7 +75,7 @@ const PrestataireDetail = () => {
               <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
                 <div>
                   <h1 className="text-2xl font-bold">
-                    {prestataire.profilPro.prenom} {prestataire.profilPro.nom}
+                  {prestataire.email} {prestataire.id}
                   </h1>
                   <div className="flex items-center mt-2">
                     <StarRating rating={Math.round(averageRating)} />
@@ -152,7 +152,7 @@ const PrestataireDetail = () => {
               {prestataire.services.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                   {prestataire.services.map(service => (
-                    <ServiceCard key={service.id} service={service} prestataire={undefined} sousCategorie={undefined} />
+                    <ServiceCard key={service.id} service={service} sousCategorie={undefined} />
                   ))}
                 </div>
               ) : (

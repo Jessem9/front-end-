@@ -71,7 +71,7 @@ const Prestataires = () => {
                 <Card key={prestataire.id} className="hover:shadow-lg transition-shadow duration-300">
                   <CardHeader className="pb-2">
                     <h2 className="text-xl font-semibold">
-                      {profil ? `${profil.prenom} ${profil.nom}` : "Nom inconnu"}
+                      {prestataire ? `${prestataire.profil.prenom} ${prestataire.profil.nom}` : "Nom inconnu"}
                     </h2>
                     {feedback.count > 0 && (
                       <div className="flex items-center mt-1">
@@ -84,7 +84,7 @@ const Prestataires = () => {
                   </CardHeader>
                   <CardContent className="pb-2">
                     <p className="text-gray-600 mb-3 line-clamp-2">
-                      {profil ? profil.bio : "Bio non disponible"}
+                      {prestataire ? prestataire.profil.bio : "Bio non disponible"}
                     </p>
                     <p className="text-sm text-gray-700 mb-4">
                       <strong>{servicesCount}</strong> service(s) proposé(s)

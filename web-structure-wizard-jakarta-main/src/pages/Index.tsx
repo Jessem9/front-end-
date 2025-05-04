@@ -188,7 +188,53 @@ const Index = () => {
           </div>
         </div>
       </section>
-      {/* Rest of your sections here */}
+      {/* Catégories populaires */}
+      <section className="py-16">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold">Catégories populaires</h2>
+            <Link to="/categories">
+              <Button variant="outline">Voir toutes les catégories</Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+            {categories.length > 0 ? (
+              categories.map(categorie => (
+                <CategorieCard
+                  key={categorie.id}  // Ensure `categorie.id` is unique
+                  categorie={categorie}
+                  sousCategories={getSousCategoriesParCategorie(categorie.id)}
+                />
+              ))
+            ) : (
+              <div>Pas de catégories disponibles.</div>
+            )}
+          </div>
+        </div>
+      </section>
+
+      {/* Services récents */}
+      <section className="py-16 bg-gray-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center mb-8">
+            <h2 className="text-2xl font-bold">Services récents</h2>
+            <Link to="/services">
+              <Button variant="outline">Voir tous les services</Button>
+            </Link>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {services.length > 0 ? (
+              services.slice(0, 6).map(service => (
+                <ServiceCard key={service.id} service={service} prestataire={undefined} sousCategorie={undefined} />
+              ))
+            ) : (
+              <div>Pas de services disponibles.</div>
+            )}
+          </div>
+        </div>
+      </section>
       <Footer />
     </div>
   );

@@ -16,6 +16,7 @@ import Register from "./pages/Register";
 import NotFound from "./pages/NotFound";
 import CreerService from "./pages/creer-service";
 import axios from "axios";
+import ProfilePage from "./pages/ProfilePage";
 
 const queryClient = new QueryClient();
 axios.defaults.headers.common["Authorization"] = `Bearer ${localStorage.getItem("token")}`;
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/connexion" element={<Login />} />
           <Route path="/inscription" element={<Register />} />
           <Route path="/creer-service" element={<CreerService />} />
+          <Route path="/profile" element={<ProfilePage />} />
 
         </Routes>
       </BrowserRouter>

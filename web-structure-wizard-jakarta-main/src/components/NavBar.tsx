@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 export const NavBar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -17,7 +18,10 @@ export const NavBar = () => {
   // Check if user is logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const storedUserId = localStorage.getItem("userId");
+
     setIsAuthenticated(!!token);
+    setUserId(storedUserId); // Get the user ID from localStorage
   }, [location]); // Update when route changes
 
   const handleLogout = () => {
@@ -67,20 +71,17 @@ export const NavBar = () => {
                 </Link>
               </>
             ) : (
-              <Button 
-                onClick={handleLogout} 
-                className="bg-[#09403A] hover:bg-[#0A554D] text-white hidden md:block"
-              >
-                Déconnexion
-              </Button>
+              <>
+                <Link to={`/profil/${userId}`}>
+                  <Button variant="ghost" className="flex items-center hover:bg-[#09403A]/10">
+                    <User className="h-5 w-5 text-[#09403A]" />
+                  </Button>
+                </Link>
+                <Button onClick={handleLogout} className="bg-[#09403A] hover:bg-[#0A554D] text-white hidden md:block">
+                  Déconnexion
+                </Button>
+              </>
             )}
-
-            {/* Profile menu */}
-            <div className="ml-3 relative">
-              <Button variant="ghost" className="flex items-center hover:bg-[#09403A]/10">
-                <User className="h-5 w-5 text-[#09403A]" />
-              </Button>
-            </div>
 
             {/* Mobile menu button */}
             <div className="flex items-center md:hidden">
@@ -114,9 +115,17 @@ export const NavBar = () => {
                   </Link>
                 </>
               ) : (
-                <Button onClick={handleLogout} className="w-full bg-[#09403A] hover:bg-[#0A554D] text-white">
-                  Déconnexion
-                </Button>
+                <>
+                  <Link to={`/profile`}>
+                    <Button variant="ghost" className="w-full flex items-center hover:bg-[#09403A]/10">
+                      <User className="h-5 w-5 text-[#09403A]" />
+                      Mon Profil
+                    </Button>
+                  </Link>
+                  <Button onClick={handleLogout} className="w-full bg-[#09403A] hover:bg-[#0A554D] text-white">
+                    Déconnexion
+                  </Button>
+                </>
               )}
             </div>
           </div>

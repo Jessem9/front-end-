@@ -13,7 +13,7 @@ export interface Demandeur {
   email: string;
   motDePasse: string;
   historiqueService: Service[];
-  profil: Profil;
+  profileId: number;
 
   authentifier?: () => boolean;
   gererUtilisateurs?: () => void;
@@ -39,7 +39,8 @@ export interface ProfilPro extends Profil {
 export interface Prestataire extends Demandeur {
   services: Service[];
   profilPro: ProfilPro;
-  
+  DemandeurId: number;
+
   creerService?: () => Service;
   gererPrestataires?: () => void;
 }

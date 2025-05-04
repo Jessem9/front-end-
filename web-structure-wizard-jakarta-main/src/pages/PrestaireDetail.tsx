@@ -1,171 +1,65 @@
+import { useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { NavBar } from "@/components/NavBar";
-import { Footer } from "@/components/Footer";
-import ServiceCard  from "@/components/ServiceCard";
-import { StarRating } from "@/components/StarRating";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ChevronRight } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Prestataire } from "@/types/models";
-import { fetchPrestataires } from "@/data/mockData";
+import { getPrestataire } from "../data/mockData";
+import { Prestataire } from "../types/models";
 
 const PrestataireDetail = () => {
-  const { id } = useParams<{ id: string }>();
-  const prestataireId = parseInt(id || "0", 10);
-
+  const { id } = useParams();
   const [prestataire, setPrestataire] = useState<Prestataire | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const getPrestataire = async () => {
+    async function fetchPrestataire() {
       try {
-        const prestatairesData = await fetchPrestataires();
-        const selectedPrestataire = prestatairesData.find(p => p.id === prestataireId);
-        if (selectedPrestataire) {
-          setPrestataire(selectedPrestataire);
+        if (!id) {
+          setError("ID manquant");
+          return;
         }
-      } catch (error) {
-        console.error("Failed to fetch prestataire data:", error);
+
+        const data = await getPrestataire(id);
+        console.log("Fetched prestataire:", data);
+
+        if (!data || !data.profileId) {
+          setError("Données du prestataire incomplètes");
+          return;
+        }
+
+        setPrestataire(data);
+      } catch (err: any) {
+        console.error("Failed to fetch prestataire data:", err);
+        setError("Erreur lors du chargement des données du prestataire");
+      } finally {
+        setLoading(false);
       }
-    };
-    getPrestataire();
-  }, [prestataireId]);
+    }
 
-  if (!prestataire || !prestataire.profilPro) {
-    return (
-      <div className="min-h-screen flex flex-col">
-        <NavBar />
-        <main className="flex-grow flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-800 mb-4">
-              Prestataire non trouvé
-            </h1>
-            <Link to="/prestataires" className="text-blue-600 hover:underline">
-              Retour aux prestataires
-            </Link>
-          </div>
-        </main>
-        <Footer />
-      </div>
-    );
-  }
+    fetchPrestataire();
+  }, [id]);
 
-  // Example of rating
-  const averageRating = 4.5;
-  const reviewCount = 15;
+  if (loading) return <div className="p-6 text-gray-600">Chargement...</div>;
+
+  if (error) return <div className="p-6 text-red-500 font-semibold">{error}</div>;
+
+  if (!prestataire) return null;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <NavBar />
-      <main className="flex-grow">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Breadcrumbs */}
-          <div className="flex items-center text-sm text-gray-500 mb-6">
-            <Link to="/" className="hover:text-blue-600">Accueil</Link>
-            <ChevronRight className="h-4 w-4 mx-2" />
-            <Link to="/prestataires" className="hover:text-blue-600">Prestataires</Link>
-            <ChevronRight className="h-4 w-4 mx-2" />
-            <span className="text-gray-800">{prestataire.email} {prestataire.id}</span>
-          </div>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">{prestataire.nom}</h1>
+      <p>Email : {prestataire.email}</p>
+      <p>Téléphone : {prestataire.telephone}</p>
 
-          <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-            {/* Header */}
-            <div className="p-6 border-b">
-              <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold">
-                  {prestataire.email} {prestataire.id}
-                  </h1>
-                  <div className="flex items-center mt-2">
-                    <StarRating rating={Math.round(averageRating)} />
-                    <span className="ml-2 text-sm text-gray-600">
-                      ({reviewCount} avis)
-                    </span>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <Button className="bg-orange-500 hover:bg-orange-600">
-                    Contacter
-                  </Button>
-                </div>
-              </div>
-            </div>
+      <h2 className="text-xl font-semibold mt-6">Profil</h2>
+      <p>Nom complet : {prestataire.profil?.nom} {prestataire.profil?.prenom}</p>
+      <p>Adresse : {prestataire.profil?.adresse}</p>
 
-            {/* Body */}
-            <div className="p-6 md:flex gap-8">
-              {/* Main information */}
-              <div className="flex-grow md:w-2/3">
-                <h2 className="text-xl font-semibold mb-4">À propos</h2>
-                <p className="text-gray-600 mb-6">
-                  {prestataire.profilPro.bio}
-                </p>
-
-                {/* Skills */}
-                <h2 className="text-xl font-semibold mb-4 mt-8">Compétences</h2>
-                <div className="flex flex-wrap gap-2 mb-6">
-                  {prestataire.profilPro.competences.map((competence, index) => (
-                    <Badge 
-                      key={index} 
-                      className="bg-blue-100 text-blue-800"
-                    >
-                      {competence}
-                    </Badge>
-                  ))}
-                </div>
-
-                {/* Experience */}
-                <h2 className="text-xl font-semibold mb-4 mt-8">Expérience</h2>
-                <ul className="list-disc pl-6 text-gray-600 mb-6">
-                  {prestataire.profilPro.experience.map((exp, index) => (
-                    <li key={index} className="mb-2">{exp}</li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Contact information */}
-              <div className="md:w-1/3 mt-8 md:mt-0">
-                <Card>
-                  <CardContent className="pt-6">
-                    <h3 className="font-semibold mb-4">Coordonnées</h3>
-                    <div className="space-y-3 text-sm">
-                      <div>
-                        <p className="text-gray-500">Email</p>
-                        <p>{prestataire.email}</p>
-                      </div>
-                      <div>
-                        <p className="text-gray-500">Adresse</p>
-                        <p>{prestataire.profilPro.adress}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* Services */}
-            <div className="p-6 border-t">
-              <h2 className="text-xl font-semibold mb-6">
-                Services proposés ({prestataire.services.length})
-              </h2>
-
-              {prestataire.services.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {prestataire.services.map(service => (
-                    <ServiceCard key={service.id} service={service} sousCategorie={undefined} />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-600">
-                  Ce prestataire n'a pas encore publié de services.
-                </p>
-              )}
-            </div>
-          </div>
-        </div>
-      </main>
-
-      <Footer />
+      {prestataire.profilPro && (
+        <>
+          <h2 className="text-xl font-semibold mt-6">Profil Professionnel</h2>
+          <p>Spécialité : {prestataire.profilPro.specialite}</p>
+          <p>Années d'expérience : {prestataire.profilPro.anneesExperience}</p>
+        </>
+      )}
     </div>
   );
 };

@@ -6,28 +6,39 @@ import { StarRating } from "@/components/StarRating";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Prestataire, Profil, Service } from "@/types/models";
-import { fetchPrestataires, fetchProfils, fetchServices } from "@/data/mockData";
+import { fetchPrestataires, fetchServices, fetchProfils } from "@/data/mockData";
 import { Button } from "@/components/ui/button";
+
+type PrestataireWithDetails = Prestataire & {
+  profil?: Profil;
+  servicesCount: number;
+  feedback: {
+    count: number;
+    rating: number;
+  };
+};
 
 const Prestataires = () => {
   const [prestataires, setPrestataires] = useState<Prestataire[]>([]);
-  const [profils, setProfils] = useState<Profil[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [profils, setProfils] = useState<Profil[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [prestatairesData, profilsData, servicesData] = await Promise.all([
+        const [prestatairesData, servicesData, profilsData] = await Promise.all([
           fetchPrestataires(),
-          fetchProfils(),
           fetchServices(),
+          fetchProfils(),
         ]);
+
         setPrestataires(prestatairesData);
-        setProfils(profilsData);
         setServices(servicesData);
+        setProfils(profilsData);
       } catch (err) {
+        console.error("Erreur de chargement:", err);
         setError("Échec du chargement des données");
       } finally {
         setLoading(false);
@@ -40,16 +51,17 @@ const Prestataires = () => {
   if (loading) return <div className="text-center py-10">Chargement...</div>;
   if (error) return <div className="text-center py-10 text-red-600">{error}</div>;
 
-  const prestatairesWithProfile = prestataires.map((prestataire) => {
-    const profil = profils.find((p) => p.id === prestataire.id);
+  const prestatairesWithDetails: PrestataireWithDetails[] = prestataires.map((prestataire) => {
+    const profil = profils.find((p) => p.id === prestataire.profileId);
     const prestataireServices = services.filter((s) => s.prestataireId === prestataire.id);
+
     return {
-      prestataire,
+      ...prestataire,
       profil,
       servicesCount: prestataireServices.length,
       feedback: {
         count: prestataireServices.length,
-        rating: 4, // Placeholder
+        rating: 4, // Valeur par défaut
       },
     };
   });
@@ -65,55 +77,82 @@ const Prestataires = () => {
               <Button variant="outline">Devenir prestataire</Button>
             </Link>
           </div>
-          {prestatairesWithProfile.length > 0 ? (
+
+          {prestatairesWithDetails.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {prestatairesWithProfile.map(({ prestataire, profil, servicesCount, feedback }) => (
-                <Card key={prestataire.id} className="hover:shadow-lg transition-shadow duration-300">
-                  <CardHeader className="pb-2">
-                    <h2 className="text-xl font-semibold">
-                      {prestataire ? `${prestataire.profil.prenom} ${prestataire.profil.nom}` : "Nom inconnu"}
-                    </h2>
-                    {feedback.count > 0 && (
-                      <div className="flex items-center mt-1">
-                        <StarRating rating={feedback.rating} />
-                        <span className="ml-2 text-sm text-gray-600">
-                          ({feedback.count} avis)
-                        </span>
-                      </div>
-                    )}
-                  </CardHeader>
-                  <CardContent className="pb-2">
-                    <p className="text-gray-600 mb-3 line-clamp-2">
-                      {prestataire ? prestataire.profil.bio : "Bio non disponible"}
-                    </p>
-                    <p className="text-sm text-gray-700 mb-4">
-                      <strong>{servicesCount}</strong> service(s) proposé(s)
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                      {prestataire.profilPro?.competences?.slice(0, 3).map((competence, index) => (
-                        <Badge key={index} className="bg-blue-100 text-blue-800">
-                          {competence}
-                        </Badge>
-                      ))}
-                      {prestataire.profilPro?.competences?.length > 3 && (
-                        <Badge className="bg-gray-100 text-gray-800">
-                          +{prestataire.profilPro.competences.length - 3}
-                        </Badge>
+              {prestatairesWithDetails.map((prestataire) => {
+                if (!prestataire.profil) {
+                  console.warn(`Prestataire ${prestataire.id} n'a pas de profil associé`);
+                  return null;
+                }
+
+                return (
+                  <Card key={prestataire.id} className="hover:shadow-lg transition-shadow duration-300">
+                    <CardHeader className="pb-2">
+                      <h2 className="text-xl font-semibold">
+                        {prestataire.profil.prenom} {prestataire.profil.nom}
+                      </h2>
+                      {prestataire.feedback.count > 0 && (
+                        <div className="flex items-center mt-1">
+                          <StarRating rating={prestataire.feedback.rating} />
+                          <span className="ml-2 text-sm text-gray-600">
+                            ({prestataire.feedback.count} avis)
+                          </span>
+                        </div>
                       )}
-                    </div>
-                  </CardContent>
-                  <CardFooter className="pt-4 border-t">
-                    <Link to={`/prestataires/${prestataire.id}`} className="w-full">
-                      <button className="w-full py-2 bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors">
-                        Voir le profil
-                      </button>
-                    </Link>
-                  </CardFooter>
-                </Card>
-              ))}
+                    </CardHeader>
+                    <CardContent className="pb-2">
+                      <p className="text-gray-600 mb-3 line-clamp-2">
+                        {prestataire.profil.bio || "Bio non disponible"}
+                      </p>
+                      <p className="text-sm text-gray-700 mb-4">
+                        <strong>{prestataire.servicesCount}</strong> service(s) proposé(s)
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {prestataire.profilPro?.competences?.slice(0, 3).map((competence, index) => (
+                          <Badge key={index} className="bg-blue-100 text-blue-800">
+                            {competence}
+                          </Badge>
+                        ))}
+                        {prestataire.profilPro?.competences?.length > 3 && (
+                          <Badge className="bg-gray-100 text-gray-800">
+                            +{prestataire.profilPro.competences.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                    </CardContent>
+                    <CardFooter className="pt-4 border-t">
+                      <Link to={`/prestataires/${prestataire.id}`} className="w-full">
+                        <Button variant="outline" className="w-full">
+                          Voir le profil
+                        </Button>
+                      </Link>
+                    </CardFooter>
+                  </Card>
+                );
+              })}
             </div>
           ) : (
-            <div className="text-center text-gray-600">Aucun prestataire trouvé.</div>
+            <div className="text-center text-gray-600">
+              <p>Aucun prestataire trouvé.</p>
+              <div className="mt-4 p-4 bg-gray-100 rounded text-left">
+                <h3 className="font-semibold">Informations de débogage:</h3>
+                <pre className="text-xs">
+                  {JSON.stringify(
+                    {
+                      prestatairesCount: prestataires.length,
+                      servicesCount: services.length,
+                      profilsCount: profils.length,
+                      prestatairesWithProfils: prestataires.filter((p) =>
+                        profils.some((pr) => pr.id === p.profileId)
+                      ).length,
+                    },
+                    null,
+                    2
+                  )}
+                </pre>
+              </div>
+            </div>
           )}
         </div>
       </main>

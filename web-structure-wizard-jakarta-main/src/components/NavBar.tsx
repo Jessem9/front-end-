@@ -45,22 +45,6 @@ export const NavBar = () => {
             </div>
           </div>
 
-          {/* Search Bar */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-4">
-            <div className="w-full flex">
-              <Input
-                type="text"
-                placeholder="Rechercher un service..."
-                className="w-full rounded-l-md focus:ring-2 focus:ring-[#0A554D] border-[#09403A]/30"
-              />
-              <Button 
-                variant="default" 
-                className="rounded-l-none bg-[#09403A] hover:bg-[#0A554D]"
-              >
-                <Search className="h-4 w-4 text-white" />
-              </Button>
-            </div>
-          </div>
 
           {/* Right-side buttons */}
           <div className="flex items-center">
@@ -126,19 +110,6 @@ export const NavBar = () => {
             >
               Services
             </Link>
-            <div className="px-3 py-2 flex">
-              <Input
-                type="text"
-                placeholder="Rechercher un service..."
-                className="w-full rounded-l-md border-[#09403A]/30 focus:ring-2 focus:ring-[#0A554D]"
-              />
-              <Button 
-                variant="default" 
-                className="rounded-l-none bg-[#09403A] hover:bg-[#0A554D]"
-              >
-                <Search className="h-4 w-4 text-white" />
-              </Button>
-            </div>
             <div className="px-3 py-2 space-y-1">
               <Link to="/connexion">
                 <Button 

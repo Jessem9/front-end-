@@ -18,13 +18,13 @@ export const CategorieCard: React.FC<CategorieCardProps> = ({
 }) => {
   return (
     <Card className="group relative overflow-hidden hover:shadow-lg transition-all duration-300 border border-[#09403A]/20 h-full flex flex-col">
-      {/* Fixed height container - ensures all cards have same total height */}
+      {/* Original size container */}
       <div className="flex flex-col h-full">
         {/* Hover effect overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-[#09403A]/5 to-[#0A554D]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         
         <CardContent className="pt-8 pb-6 flex flex-col flex-grow">
-          {/* Image container with fixed aspect ratio */}
+          {/* Original image size */}
           <div className="flex items-center justify-center mb-6 aspect-square w-full max-w-[144px] mx-auto">
             <div className="relative w-full h-0 pb-[100%] rounded-full bg-[#09403A]/5">
               {categorie.image ? (
@@ -53,15 +53,15 @@ export const CategorieCard: React.FC<CategorieCardProps> = ({
             </div>
           </div>
           
-          {/* Title with fixed line count */}
+          {/* Original title size */}
           <div className="min-h-[72px] max-h-[72px] flex items-center justify-center mb-4">
             <h3 className="text-2xl font-bold text-center text-[#09403A] line-clamp-2">
               {categorie.nom}
             </h3>
           </div>
           
-          {/* Subcategories with fixed height container */}
-          <div className="flex-grow min-h-[120px] max-h-[120px] overflow-hidden">
+          {/* Original subcategories size */}
+          <div className="flex-grow min-h-[60px] max-h-[100px] overflow-hidden">
             <div className="space-y-3 text-gray-600 text-base h-full">
               {sousCategories.slice(0, 3).map((sousCat, index) => (
                 <div key={index} className="flex items-center h-6">
@@ -80,7 +80,7 @@ export const CategorieCard: React.FC<CategorieCardProps> = ({
           </div>
         </CardContent>
         
-        {/* Fixed-height footer */}
+        {/* Original footer size */}
         <CardFooter className="border-t border-[#09403A]/10 p-0 h-16 flex-shrink-0">
           <Link 
             to={`/categories/${categorie.id}`}
